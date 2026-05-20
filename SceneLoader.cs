@@ -114,7 +114,7 @@ namespace SceneManagement
                 
                 // 7. Await load requests in parallel
                 var loadTasks = OnLoadRequested.GetInvocationList()
-                    .Cast<Func<loadTasks>>()
+                    .Cast<Func<Task>>()
                     .Select(h => h());
                 
                 await Task.WhenAll(loadTasks);

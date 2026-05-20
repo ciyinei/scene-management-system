@@ -20,8 +20,8 @@ namespace SceneManagement
         private ISceneLoadingStrategy loadingStrategy;
         
         // Events for decoupled communication
-        public event Action OnSaveRequested;
-        public event Action OnLoadRequested;
+        public event Func<Task> OnSaveRequested;
+        public event Func<Task> OnLoadRequested;
         public event Action OnScenesLoaded;
         public event Action OnTransitionComplete;
 
@@ -56,8 +56,12 @@ namespace SceneManagement
                 await loadingScreen.FadeIn(fadeInDuration);
             }
             
-            // Raise event - GameFlowController handles the actual save
-            OnSaveRequested?.Invoke();
+            // Await each subscriber in parallel
+            var saveTasks = OnSaveRequested.GetInvocationList()
+                .Cast<Func<Task>>()
+                .Select(h => h());
+
+            await Task.WhenAll(saveTasks);
             
             // Small buffer for synchronous operations
             await Task.Delay(TimeSpan.FromSeconds(bufferTime));
@@ -108,9 +112,13 @@ namespace SceneManagement
                 // 6. Notify that scenes are loaded - GameFlowController can load data now
                 OnScenesLoaded?.Invoke();
                 
-                // 7. Raise load request event
-                OnLoadRequested?.Invoke();
+                // 7. Await load requests in parallel
+                var loadTasks = OnLoadRequested.GetInvocationList()
+                    .Cast<Func<loadTasks>>()
+                    .Select(h => h());
                 
+                await Task.WhenAll(loadTasks);
+
                 // 8. Buffer for data injection
                 await Task.Delay(TimeSpan.FromSeconds(bufferTime));
                 

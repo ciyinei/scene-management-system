@@ -167,7 +167,7 @@ namespace SceneManagement
                 catch (Exception ex)
                 {
                     Debug.LogError($"PreInitialization {initializer.GetType().Name} failed: {ex.Message}");
-                    Debug.LogError(ex.stackTrace);
+                    Debug.LogError(ex.StackTrace);
                 }
             }
             
@@ -181,6 +181,7 @@ namespace SceneManagement
                 catch (Exception ex)
                 {
                     Debug.LogError($"Initialization {initializer.GetType().Name} failed: {ex.Message}");
+                    Debug.LogError(ex.StackTrace);
                 }
             }
         }
